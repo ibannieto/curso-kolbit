@@ -1,0 +1,14 @@
+# Módulo 6 · Lab 14 — PodDisruptionBudget para la API
+# Durante un "kubectl drain" siempre quedará al menos 1 réplica de la API.
+#   kubectl apply -f examples/contador/k8s/admin/pdb.yaml
+#   kubectl get pdb -n contador
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api
+  namespace: contador
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api

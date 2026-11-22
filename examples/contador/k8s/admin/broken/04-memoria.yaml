@@ -1,0 +1,41 @@
+# Lab 15 · Roto nº 4 — Arranca, funciona un segundo… y se reinicia
+#   kubectl apply -f examples/contador/k8s/admin/broken/04-memoria.yaml
+# (Ejemplo basado en la documentación oficial de Kubernetes: "Assign Memory Resources")
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roto-memoria
+  namespace: contador
+  labels:
+    app.kubernetes.io/name: roto-memoria
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: roto-memoria
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: roto-memoria
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: stress
+          image: polinux/stress:1.0.4
+          command: ["stress"]
+          # Reserva 150 MB de RAM y los mantiene
+          args: ["--vm", "1", "--vm-bytes", "150M", "--vm-hang", "1"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 50Mi
+            limits:
+              memory: 100Mi

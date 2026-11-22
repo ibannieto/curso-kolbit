@@ -1,0 +1,96 @@
+# Módulo 6 · Lab 17 — Redis con almacenamiento persistente (StatefulSet + PVC)
+#
+# Sustituye al Deployment "redis" (emptyDir, sin persistencia) del base (../redis.yaml).
+# Cómo cambiar:
+#   kubectl delete -n contador deployment/redis service/redis
+#   kubectl apply -f examples/contador/k8s/admin/redis-statefulset.yaml
+# El Service se llama igual ("redis"), así que la API no necesita cambios.
+# Para volver atrás: borra el StatefulSet y su Service y haz "kubectl apply -k examples/contador/k8s".
+# OJO: el PVC "data-redis-0" NO se borra al eliminar el StatefulSet (los datos se conservan).
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: contador
+  labels:
+    app.kubernetes.io/name: redis
+spec:
+  clusterIP: None            # headless: DNS estable redis-0.redis.contador.svc.cluster.local
+  selector:
+    app.kubernetes.io/name: redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: redis
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: contador
+  labels:
+    app.kubernetes.io/name: redis
+spec:
+  serviceName: redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redis
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: redis
+          image: redis:8.10.3-alpine
+          # appendonly: cada escritura se guarda en /data (el PVC)
+          args: ["redis-server", "--appendonly", "yes", "--requirepass", "$(REDIS_PASSWORD)"]
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: contador-secret
+                  key: REDIS_PASSWORD
+          ports:
+            - name: redis
+              containerPort: 6379
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "redis-cli -a \"$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: redis
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        # Sin storageClassName → la clase por defecto (kind: "standard", Hetzner: "hcloud-volumes")
+        resources:
+          requests:
+            storage: 1Gi

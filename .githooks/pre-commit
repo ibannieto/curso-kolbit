@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Hook pre-commit: lint rápido de lo que se va a commitear.
+# Activar con: make hooks   ·   Saltar puntualmente: git commit --no-verify
+set -euo pipefail
+staged="$(git diff --cached --name-only --diff-filter=ACM)"
+[[ -z "${staged}" ]] && exit 0
+
+md="$(grep -E '\.md$' <<< "${staged}" || true)"
+yaml="$(grep -E '\.ya?ml$' <<< "${staged}" || true)"
+sh="$(grep -E '\.sh$' <<< "${staged}" || true)"
+
+if [[ -n "${md}" ]]; then
+  # shellcheck disable=SC2086
+  npx --no-install markdownlint-cli2 ${md}
+fi
+if [[ -n "${yaml}" ]] && command -v yamllint >/dev/null; then
+  # shellcheck disable=SC2086
+  yamllint -c .yamllint.yaml -s ${yaml}
+fi
+if [[ -n "${sh}" ]] && command -v shellcheck >/dev/null; then
+  # shellcheck disable=SC2086
+  shellcheck ${sh}
+fi
+if command -v gitleaks >/dev/null; then
+  gitleaks git --staged --no-banner --redact .
+fi

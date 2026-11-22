@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Clúster local kind (labs/lab-18-proyecto-final.md):
+#   podman build -t localhost/curso-kolbit:dev .   (o docker build -t curso-kolbit:dev .)
+#   kind load docker-image curso-kolbit:dev
+#   kubectl apply -k k8s/overlays/kind
+resources:
+  - ../../base
+images:
+  - name: curso-kolbit
+    newName: curso-kolbit
+    newTag: dev
+patches:
+  - target:
+      kind: Deployment
+      name: curso-kolbit
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1

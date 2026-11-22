@@ -1,0 +1,41 @@
+# Lab 15 · Roto nº 1 — ¿Por qué no arranca?
+#   kubectl apply -f examples/contador/k8s/admin/broken/01-imagen.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roto-imagen
+  namespace: contador
+  labels:
+    app.kubernetes.io/name: roto-imagen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: roto-imagen
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: roto-imagen
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: contador:1.0.1-final-definitivo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi

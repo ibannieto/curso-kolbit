@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: contador-config
+data:
+  APP_MESSAGE: "¡Hola desde Kubernetes!"
+  APP_COLOR: "blue"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"

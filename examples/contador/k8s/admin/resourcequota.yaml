@@ -1,0 +1,25 @@
+# Módulo 6 · Lab 17 — Cuota del namespace "contador"
+#   kubectl apply -f examples/contador/k8s/admin/resourcequota.yaml
+#   kubectl describe quota -n contador
+# Con cuotas de CPU/memoria, todo Pod debe declarar requests y limits:
+# aplica también limitrange.yaml para que se rellenen por defecto.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: cuota
+  namespace: contador
+spec:
+  hard:
+    # Compute
+    requests.cpu: "2"
+    requests.memory: 2Gi
+    limits.cpu: "8"
+    limits.memory: 4Gi
+    # Objetos
+    pods: "10"
+    services: "5"
+    configmaps: "10"
+    secrets: "10"
+    # Almacenamiento
+    persistentvolumeclaims: "3"
+    requests.storage: 5Gi

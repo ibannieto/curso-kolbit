@@ -1,0 +1,102 @@
+# CI de GitHub Actions — DESACTIVADO de momento (minutos de Actions agotados).
+#
+# Solo se puede lanzar a mano (workflow_dispatch) y además el workflow está
+# deshabilitado con `gh workflow disable ci.yml`. Para activarlo:
+#   1. gh workflow enable ci.yml
+#   2. Descomentar los disparadores push/pull_request de abajo
+# Ver docs/ci.md. Mientras tanto, el equivalente local es: make ci
+name: ci
+
+on:
+  workflow_dispatch:
+    inputs:
+      push_image:
+        description: "Publicar la imagen en GHCR"
+        type: boolean
+        default: false
+# Disparadores automáticos (descomentar dentro de "on:" al activar el CI):
+#   push:
+#     branches: [main]
+#   pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/curso-kolbit
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: markdownlint
+        run: npx --no-install markdownlint-cli2
+      - name: yamllint
+        run: pipx run yamllint -c .yamllint.yaml -s k8s examples .github
+      - name: hadolint
+        run: docker run --rm -v "$PWD":/w -w /w ghcr.io/hadolint/hadolint:v2.15.1 hadolint -c .hadolint.yaml Dockerfile examples/contador/Dockerfile
+      - name: shellcheck
+        run: shellcheck scripts/*.sh
+      - name: kubeconform
+        run: |
+          for d in k8s/overlays/* examples/contador/k8s; do
+            kubectl kustomize "$d" | docker run --rm -i ghcr.io/yannh/kubeconform:v0.8.0 -strict -summary -kubernetes-version 1.37.0 -ignore-missing-schemas -
+          done
+
+  build:
+    needs: lint
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - name: Build
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: ${{ env.IMAGE }}:${{ github.sha }}
+          build-args: |
+            VERSION=${{ github.sha }}
+            GIT_SHA=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke test
+        run: |
+          docker run -d --name slides -p 8080:8080 ${{ env.IMAGE }}:${{ github.sha }}
+          ./scripts/wait-for.sh http://localhost:8080/healthz
+          ./scripts/smoke-test.sh http://localhost:8080
+      - name: Push a GHCR
+        if: ${{ inputs.push_image }}
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker push ${{ env.IMAGE }}:${{ github.sha }}
+
+  pdf:
+    needs: build
+    if: ${{ inputs.push_image }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Generar PDF
+        run: |
+          docker network create kolbit
+          docker build -t curso-kolbit:ci .
+          docker run -d --name curso-kolbit --network kolbit curso-kolbit:ci
+          ENGINE=docker ./scripts/pdf.sh output/curso-kolbit.pdf
+      - uses: actions/upload-artifact@v7
+        with:
+          name: curso-kolbit-pdf
+          path: output/curso-kolbit.pdf

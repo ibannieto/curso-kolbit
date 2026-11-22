@@ -1,0 +1,23 @@
+// markdownlint-cli2 — https://github.com/DavidAnson/markdownlint-cli2
+{
+  "config": {
+    "default": true,
+    // Líneas largas: diapositivas y tablas
+    "MD013": false,
+    // HTML embebido: reveal.js usa <div class="cols">, <img>, <small>…
+    "MD033": false,
+    // Cada diapositiva empieza con su propio título
+    "MD025": false,
+    "MD024": { "siblings_only": true },
+    // Las diapositivas no siempre empiezan por encabezado (portadas, memes)
+    "MD041": false,
+    // "---" es el separador de diapositivas
+    "MD035": false,
+    "MD026": { "punctuation": ".,;:" },
+    // Énfasis usado como título en columnas de diapositivas
+    "MD036": false,
+    "MD060": false
+  },
+  "globs": ["**/*.md"],
+  "ignores": ["node_modules/**", "dist/**", "output/**"]
+}

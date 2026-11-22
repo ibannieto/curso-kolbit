@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: curso-kolbit
+  labels:
+    # Pod Security Admission: el Pod cumple el perfil "restricted"
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

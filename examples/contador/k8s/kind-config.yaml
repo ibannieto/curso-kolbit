@@ -1,0 +1,14 @@
+# Clúster kind del curso: 1 control-plane + 2 workers (lab 08)
+#   kind create cluster --name curso --config examples/contador/k8s/kind-config.yaml
+# No forma parte del kustomization (no es un recurso de Kubernetes).
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # NodePort 30080 accesible desde el host en localhost:30080
+      - containerPort: 30080
+        hostPort: 30080
+        protocol: TCP
+  - role: worker
+  - role: worker

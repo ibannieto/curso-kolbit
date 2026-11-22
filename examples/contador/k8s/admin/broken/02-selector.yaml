@@ -1,0 +1,54 @@
+# Lab 15 · Roto nº 2 — Los Pods están Running… pero el Service no responde
+#   kubectl apply -f examples/contador/k8s/admin/broken/02-selector.yaml
+#   kubectl run tmp --rm -it --image=busybox:1.38 --restart=Never -n contador -- wget -qO- -T 3 http://roto-web
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roto-web
+  namespace: contador
+  labels:
+    app.kubernetes.io/name: roto-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: roto-web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: roto-web
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: web
+          image: nginxinc/nginx-unprivileged:1.30.6-alpine-slim
+          ports:
+            - name: http
+              containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 20m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: roto-web
+  namespace: contador
+spec:
+  selector:
+    app.kubernetes.io/name: rotoweb
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080

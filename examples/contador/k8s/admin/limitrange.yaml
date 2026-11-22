@@ -1,0 +1,26 @@
+# Módulo 6 · Lab 14 y 17 — Valores por defecto de requests/limits en el namespace
+#   kubectl apply -f examples/contador/k8s/admin/limitrange.yaml
+# Solo afecta a los Pods creados DESPUÉS de aplicarla.
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: defaults
+  namespace: contador
+spec:
+  limits:
+    - type: Container
+      defaultRequest:      # si el contenedor no declara requests
+        cpu: 50m
+        memory: 64Mi
+      default:             # si el contenedor no declara limits
+        cpu: 500m
+        memory: 256Mi
+      max:                 # se rechaza cualquier contenedor que pida más
+        cpu: "1"
+        memory: 512Mi
+      min:
+        cpu: 10m
+        memory: 16Mi
+    - type: PersistentVolumeClaim
+      max:
+        storage: 2Gi

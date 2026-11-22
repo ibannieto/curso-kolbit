@@ -1,0 +1,49 @@
+# Lab 15 · Roto nº 5 — RESTARTS no para de subir
+#   kubectl apply -f examples/contador/k8s/admin/broken/05-arranque.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roto-arranque
+  namespace: contador
+  labels:
+    app.kubernetes.io/name: roto-arranque
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: roto-arranque
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: roto-arranque
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: contador:1.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: FAIL_ON_START
+              value: "falta la variable DATABASE_URL"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: contador-secret
+                  key: REDIS_PASSWORD
+          ports:
+            - name: http
+              containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi

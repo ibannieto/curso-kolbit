@@ -1,0 +1,68 @@
+# Módulo 6 · Lab 16 — Usuarios y RBAC en el namespace "contador"
+#   kubectl apply -f examples/contador/k8s/admin/rbac.yaml
+#   kubectl auth can-i create deployments -n contador --as=system:serviceaccount:contador:ci-deployer
+#   kubectl auth can-i list pods -n contador --as=alumno
+
+# 1) Identidad para un pipeline de CI que despliega la app
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ci-deployer
+  namespace: contador
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: deployer
+  namespace: contador
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["services", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ci-deployer
+  namespace: contador
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: deployer
+subjects:
+  - kind: ServiceAccount
+    name: ci-deployer
+    namespace: contador
+---
+# 2) Usuario humano "alumno" (certificado X.509 con CN=alumno, ver lab 16): solo lectura
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: viewer
+  namespace: contador
+rules:
+  - apiGroups: ["", "apps"]
+    resources: ["pods", "pods/log", "services", "configmaps", "deployments", "replicasets", "events"]
+    # Sin acceso a "secrets": ver un Secret es ver su contenido
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: alumno-viewer
+  namespace: contador
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: viewer
+subjects:
+  - kind: User
+    apiGroup: rbac.authorization.k8s.io
+    name: alumno

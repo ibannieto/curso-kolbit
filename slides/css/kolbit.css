@@ -1,0 +1,173 @@
+/* ==========================================================================
+   Tema "kolbit" — capa sobre el tema black de reveal.js
+   Texto: Atkinson Hyperlegible Next (diseñada para máxima legibilidad)
+   Código/terminal: JetBrains Mono
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next';
+  src: url('../vendor/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next';
+  src: url('../vendor/fonts/atkinson-hyperlegible-next-latin-400-italic.woff2') format('woff2');
+  font-weight: 400; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next';
+  src: url('../vendor/fonts/atkinson-hyperlegible-next-latin-700-normal.woff2') format('woff2');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../vendor/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../vendor/fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+
+:root {
+  --k-bg: #0d1424;
+  --k-bg-soft: #16213a;
+  --k-fg: #e8ecf4;
+  --k-muted: #9aa7bd;
+  --k-docker: #1d63ed;
+  --k-k8s: #326ce5;
+  --k-accent: #4fd1c5;
+  --k-warn: #f6ad55;
+  --k-danger: #fc8181;
+  --k-ok: #68d391;
+
+  --r-background-color: var(--k-bg);
+  --r-main-font: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  --r-main-font-size: 34px;
+  --r-main-color: var(--k-fg);
+  --r-heading-font: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  --r-heading-color: #ffffff;
+  --r-heading-text-transform: none;
+  --r-heading-font-weight: 700;
+  --r-heading-letter-spacing: -0.01em;
+  --r-heading1-size: 2.1em;
+  --r-heading2-size: 1.45em;
+  --r-heading3-size: 1.1em;
+  --r-code-font: 'JetBrains Mono', ui-monospace, monospace;
+  --r-link-color: var(--k-accent);
+  --r-link-color-hover: #81e6d9;
+  --r-selection-background-color: var(--k-k8s);
+}
+
+.reveal-viewport { background: var(--k-bg); }
+
+/* Barra inferior con marca del curso */
+.reveal .slides > section::after { content: none; }
+.reveal .slide-number { font-family: var(--r-code-font); background: transparent; color: var(--k-muted); font-size: 14px; }
+.reveal .progress { color: var(--k-accent); height: 4px; }
+
+.reveal .slides section { text-align: left; }
+.reveal h1, .reveal h2, .reveal h3 { margin-bottom: 0.5em; text-align: left; }
+.reveal h2 { border-left: 8px solid var(--k-k8s); padding-left: 0.4em; }
+.reveal section.docker h2 { border-left-color: var(--k-docker); }
+.reveal p, .reveal li { line-height: 1.35; }
+.reveal ul, .reveal ol { display: block; margin-left: 1.1em; }
+.reveal li { margin: 0.25em 0; }
+.reveal li::marker { color: var(--k-accent); }
+.reveal strong { color: #ffffff; }
+.reveal em { color: var(--k-accent); font-style: normal; }
+.reveal small, .reveal .small { font-size: 0.65em; color: var(--k-muted); }
+.reveal blockquote { width: auto; margin: 0.6em 0; background: var(--k-bg-soft); border-left: 6px solid var(--k-accent); box-shadow: none; padding: 0.6em 1em; font-style: normal; }
+
+/* Código: tamaño legible en pantalla compartida por Teams */
+.reveal pre { width: 100%; font-size: 0.64em; box-shadow: none; margin: 0.6em 0; }
+.reveal pre code { max-height: 520px; padding: 0.8em 1em; border-radius: 10px; background: #0a0f1c; border: 1px solid #24314f; line-height: 1.45; }
+.reveal code { font-family: var(--r-code-font); }
+.reveal :not(pre) > code { background: var(--k-bg-soft); color: var(--k-accent); padding: 0.05em 0.3em; border-radius: 6px; font-size: 0.85em; }
+.reveal pre.big { font-size: 0.76em; }
+.reveal pre.small { font-size: 0.52em; }
+
+/* Tablas */
+.reveal table { font-size: 0.8em; border-collapse: collapse; margin: 0.6em 0; }
+.reveal table th { color: var(--k-accent); border-bottom: 2px solid var(--k-accent); }
+.reveal table th, .reveal table td { padding: 0.3em 0.8em; border-bottom: 1px solid #24314f; }
+
+/* Imágenes */
+.reveal img { border: 0; box-shadow: none; background: transparent; }
+.reveal .logo-row { display: flex; gap: 2.2rem; justify-content: flex-start; align-items: center; margin-top: 1.2em; }
+.reveal .logo-row img { height: 110px; margin: 0; padding: 12px 16px; background: #f4f6fb; border-radius: 16px; box-sizing: content-box; }
+
+/* Layouts */
+.reveal .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; align-items: start; }
+.reveal .cols.three { grid-template-columns: 1fr 1fr 1fr; }
+.reveal .cols.wide-left { grid-template-columns: 1.6fr 1fr; }
+.reveal .cols > div > :first-child { margin-top: 0; }
+.reveal .center { text-align: center; }
+.reveal section.center-v { display: flex !important; flex-direction: column; justify-content: center; height: 100%; }
+
+/* Cajas */
+.reveal .box { background: var(--k-bg-soft); border-radius: 12px; padding: 0.6em 0.9em; border-top: 4px solid var(--k-k8s); font-size: 0.82em; }
+.reveal .box.tip { border-top-color: var(--k-ok); }
+.reveal .box.warn { border-top-color: var(--k-warn); }
+.reveal .box.danger { border-top-color: var(--k-danger); }
+.reveal .box > :first-child { margin-top: 0; }
+.reveal .box > :last-child { margin-bottom: 0; }
+
+/* Portadas de módulo */
+.reveal section.module { text-align: left; }
+.reveal section.module .kicker { font-family: var(--r-code-font); color: var(--k-accent); font-size: 0.7em; letter-spacing: 0.08em; text-transform: uppercase; }
+.reveal section.module h1 { font-size: 2.3em; margin: 0.2em 0 0.4em; }
+.reveal section.module .agenda { color: var(--k-muted); font-size: 0.8em; }
+
+/* Laboratorio */
+.reveal section.lab h2 { border-left-color: var(--k-ok); }
+.reveal section.lab h2::before { content: 'LAB · '; font-family: var(--r-code-font); color: var(--k-ok); font-size: 0.7em; vertical-align: middle; }
+
+/* Meme */
+.reveal section.meme, .reveal section.meme h2 { text-align: center; }
+.reveal section.meme img { max-height: 560px; margin: 0 auto; }
+.reveal section.meme h2 { border: 0; padding: 0; font-size: 1em; color: var(--k-muted); }
+
+/* Pie con fuente/créditos */
+.reveal .credit { position: absolute; bottom: -1.2em; right: 0; font-size: 0.45em; color: var(--k-muted); }
+
+/* Impresión/PDF: mantener fondo oscuro y tamaño de código */
+@media print {
+  .reveal pre code { max-height: none; }
+}
+
+/* ==========================================================================
+   Memes (componentes HTML/CSS para que usen las fuentes de la presentación)
+   ========================================================================== */
+
+/* Terminal falso: <div class="meme-term"><div class="bar">título</div><pre>...</pre></div> */
+.reveal .meme-term { width: 82%; margin: 0.4em auto; text-align: left; border-radius: 12px; overflow: hidden; border: 1px solid #2b3a5c; background: #060a14; }
+.reveal .meme-term .bar { font-family: var(--r-code-font); font-size: 0.45em; color: var(--k-muted); background: #1a2440; padding: 0.4em 0.8em; }
+.reveal .meme-term .bar::before { content: '● ● ●  '; color: #fc8181; letter-spacing: 0.1em; }
+.reveal .meme-term pre { margin: 0; width: 100%; font-size: 0.72em; }
+.reveal .meme-term pre code { border: 0; background: transparent; max-height: none; }
+.reveal .meme-term .red { color: var(--k-danger); }
+.reveal .meme-term .green { color: var(--k-ok); }
+.reveal .meme-term .yellow { color: var(--k-warn); }
+
+/* Pie de meme (texto grande, estilo cartel) */
+.reveal .meme-caption { font-size: 1.15em; font-weight: 700; color: #fff; margin-top: 0.5em; }
+.reveal .meme-caption.top { margin: 0 0 0.4em; }
+
+/* Personaje + bocadillo: <div class="meme-bubble"><img ...><div class="bubble">texto</div></div> */
+.reveal .meme-bubble { display: flex; align-items: center; justify-content: center; gap: 1.5em; margin-top: 0.4em; }
+.reveal .meme-bubble img { height: 430px; margin: 0; }
+.reveal .meme-bubble .bubble { position: relative; max-width: 50%; background: #fff; color: #111; font-weight: 700; font-size: 1.05em; line-height: 1.3; padding: 0.8em 1em; border-radius: 28px; text-align: left; }
+.reveal .meme-bubble .bubble::before { content: ''; position: absolute; left: -34px; top: 45%; border: 18px solid transparent; border-right: 22px solid #fff; }
+.reveal .meme-bubble .bubble small { display: block; color: #555; font-weight: 400; font-size: 0.6em; margin-top: 0.4em; }
+
+/* Dos paneles: <div class="meme-two"><div><span class="tag">...</span>...</div><div>...</div></div> */
+.reveal .meme-two { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.3em; }
+.reveal .meme-two > div { background: var(--k-bg-soft); border-radius: 14px; padding: 0.7em; font-size: 1.15em; text-align: center; min-height: 300px; display: flex; flex-direction: column; justify-content: center; }
+.reveal .meme-two .tag { font-family: var(--r-code-font); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.6em; color: var(--k-accent); margin-bottom: 0.5em; }
+.reveal .meme-two > div:last-child .tag { color: var(--k-danger); }
+
+/* Sello "Works on my machine" */
+.reveal .meme-stamp { display: inline-block; border: 10px double var(--k-ok); color: var(--k-ok); border-radius: 50%; width: 360px; height: 360px; transform: rotate(-12deg); font-weight: 700; font-size: 0.9em; line-height: 1.15; text-transform: uppercase; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 1em; box-sizing: border-box; margin-top: 0.3em; }
+.reveal .meme-stamp small { display: block; color: var(--k-ok); font-size: 0.55em; margin-top: 0.4em; }

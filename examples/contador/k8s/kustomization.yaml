@@ -1,0 +1,24 @@
+# Kustomize base de la app "contador" (Módulo 5 · labs 11–13)
+#   kubectl apply -k examples/contador/k8s
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: contador
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: contador
+    includeSelectors: false
+
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - secret.yaml
+  - redis.yaml
+  - api.yaml
+  - service.yaml
+  - hpa.yaml
+
+images:
+  - name: contador
+    newTag: "1.0"

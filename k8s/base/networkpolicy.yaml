@@ -1,0 +1,15 @@
+# Solo se admite tráfico entrante al puerto HTTP; el Pod no necesita salir a ningún sitio.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: curso-kolbit
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: curso-kolbit
+  policyTypes: ["Ingress", "Egress"]
+  ingress:
+    - ports:
+        - port: 8080
+          protocol: TCP
+  egress: []

@@ -1,0 +1,32 @@
+# Módulo 2 — Docker Compose: la app "contador" + Redis
+# Uso: docker compose up -d --build   ·   curl localhost:8080
+name: contador
+
+services:
+  api:
+    build: .
+    image: contador:dev
+    ports:
+      - "8080:8080"
+    environment:
+      REDIS_HOST: redis
+      APP_MESSAGE: "Hola desde Docker Compose"
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis:
+    image: redis:8.10.3-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  redis-data:

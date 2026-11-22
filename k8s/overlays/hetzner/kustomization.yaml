@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Clúster Hetzner (Talos) del profesor. `make deploy` actualiza newTag.
+# La imagen es privada en GHCR: el namespace lleva la etiqueta que hace que
+# External Secrets (ClusterExternalSecret "ghcr-pull") cree el Secret de pull.
+resources:
+  - ../../base
+images:
+  - name: curso-kolbit
+    newName: ghcr.io/ibannieto/curso-kolbit
+    newTag: latest # managed-by: make deploy
+patches:
+  - target:
+      kind: Namespace
+      name: curso-kolbit
+    patch: |-
+      - op: add
+        path: /metadata/labels/registry.malaleche.xyz~1ghcr
+        value: enabled
+  - target:
+      kind: Deployment
+      name: curso-kolbit
+    patch: |-
+      - op: add
+        path: /spec/template/spec/imagePullSecrets
+        value:
+          - name: ghcr-pull
+# Para publicar la presentación con Gateway API, descomenta y ajusta
+# k8s/components/httproute/httproute.yaml (hostname y Gateway):
+# components:
+#   - ../../components/httproute

@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Presentación del curso servida por nginx-unprivileged.
+# Las overlays (kind, hetzner) fijan la imagen y los detalles de cada entorno.
+namespace: curso-kolbit
+labels:
+  - pairs:
+      app.kubernetes.io/name: curso-kolbit
+      app.kubernetes.io/part-of: curso-kolbit
+    includeSelectors: true
+resources:
+  - namespace.yaml
+  - deployment.yaml
+  - service.yaml
+  - pdb.yaml
+  - networkpolicy.yaml
+images:
+  - name: curso-kolbit
+    newName: ghcr.io/ibannieto/curso-kolbit
+    newTag: latest
