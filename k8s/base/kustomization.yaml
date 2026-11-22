@@ -14,7 +14,4 @@ resources:
   - service.yaml
   - pdb.yaml
   - networkpolicy.yaml
-images:
-  - name: curso-kolbit
-    newName: ghcr.io/ibannieto/curso-kolbit
-    newTag: latest
+# La imagen ("curso-kolbit") es un marcador: cada overlay fija nombre y tag.
