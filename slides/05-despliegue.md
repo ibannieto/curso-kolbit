@@ -142,6 +142,33 @@ helm uninstall monitoring -n monitoring
 
 ---
 
+## GitOps: git manda, el clúster obedece
+
+<div class="cols wide-left">
+<div>
+
+- Un agente en el clúster (**Flux**, **Argo CD**) vigila un repositorio git y **reconcilia**
+- Desplegar = **commit**: revisión por PR, historial y rollback con `git revert`
+- Imágenes fijadas por **digest** (`tag@sha256:…`) en el manifiesto
+- Los cambios a mano se **revierten** solos: sin «drift»
+
+</div>
+<div>
+
+<div class="box warn">
+
+**Caso real (preparando este curso):** desplegué una versión nueva con `kubectl apply`… y Flux la revirtió a la anterior en la siguiente reconciliación. Si hay GitOps, el despliegue va por git.
+
+</div>
+
+</div>
+</div>
+
+Note:
+Es el mismo bucle de reconciliación de Kubernetes, un nivel más arriba: estado deseado en git, estado real en el clúster. La presentación del curso se despliega así: make deploy cambia el digest en el repositorio belters-apps y Flux lo aplica. Enseñar flux get kustomizations en el clúster de Hetzner si hay tiempo.
+
+---
+
 ## Controladores de carga de trabajo
 
 | Controlador | Para qué |

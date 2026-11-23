@@ -26,8 +26,10 @@ PORT         ?= 8080
 URL          ?= http://localhost:$(PORT)
 
 K8S_NS       ?= curso-kolbit
-OVERLAY      ?= k8s/overlays/hetzner
 KUBECTL      ?= kubectl
+PUBLIC_URL   ?= https://curso.malaleche.xyz
+# Clon local del repositorio GitOps del clúster (Flux gestiona la app desde ahí)
+BELTERS_APPS ?= $(CURDIR)/../belters-apps
 
 DECKTAPE_IMAGE ?= ghcr.io/astefanutti/decktape:3.17.0
 PDF          ?= output/curso-kolbit.pdf
@@ -157,14 +159,14 @@ release: ci push ## ci + push
 ##@ Kubernetes
 
 .PHONY: deploy
-deploy: ## Despliega IMAGE:TAG en el contexto actual (overlay hetzner)
+deploy: ## Despliega IMAGE:TAG vía GitOps: digest en belters-apps (PUSH=1 para publicarlo)
 	@if [ -n "$(DIRTY)" ] && [ -z "$(FORCE)" ]; then echo "✖ Hay cambios sin commitear: el tag $(TAG) no existe en el registro. Haz commit + make image push, o usa FORCE=1"; exit 1; fi
-	@skopeo inspect --raw docker://$(IMAGE):$(TAG) >/dev/null 2>&1 || { echo "✖ $(IMAGE):$(TAG) no está en el registro (o no hay login). Ejecuta: make login push"; exit 1; }
-	@echo "Contexto: $$($(KUBECTL) config current-context)"
-	sed -i -E 's|^(    newTag: ).*(# managed-by: make deploy)$$|\1$(TAG) \2|' $(OVERLAY)/kustomization.yaml
-	$(KUBECTL) apply -k $(OVERLAY)
-	$(KUBECTL) -n $(K8S_NS) rollout status deploy/curso-kolbit --timeout=180s
-	@echo "✔ Desplegado $(TAG). Recuerda commitear $(OVERLAY)/kustomization.yaml"
+	BELTERS_APPS=$(BELTERS_APPS) PUSH=$(PUSH) ./scripts/gitops-deploy.sh $(IMAGE) $(TAG)
+
+.PHONY: version
+version: ## Compara el commit local con la versión publicada en PUBLIC_URL
+	@echo "Local:     $(GIT_SHA)"
+	@printf 'Publicada: '; curl -fsS $(PUBLIC_URL)/version.json | sed -n 's/.*"sha": "\(.*\)".*/\1/p'
 
 .PHONY: k8s-status
 k8s-status: ## Estado de la presentación en el clúster
@@ -179,10 +181,6 @@ k8s-forward: ## Port-forward del Service a http://localhost:8081
 k8s-smoke: ## Smoke test en el clúster (port-forward temporal)
 	@$(KUBECTL) -n $(K8S_NS) port-forward svc/curso-kolbit 8081:80 >/dev/null 2>&1 & pf=$$!; \
 	  trap "kill $$pf" EXIT; ./scripts/wait-for.sh http://localhost:8081/healthz && ./scripts/smoke-test.sh http://localhost:8081
-
-.PHONY: k8s-delete
-k8s-delete: ## Elimina la presentación del clúster
-	$(KUBECTL) delete -k $(OVERLAY) --ignore-not-found
 
 ##@ Integración
 

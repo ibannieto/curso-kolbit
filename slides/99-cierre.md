@@ -21,8 +21,8 @@ Proyecto final · Repaso · CaaS · Próximos pasos
 
 - Lo que estás viendo es un **contenedor**: reveal.js + nginx-unprivileged en el puerto 8080
 - Imagen: `ghcr.io/ibannieto/curso-kolbit:<tag>`
-- Manifiestos en `k8s/`: base de Kustomize + overlays `kind` y `hetzner`
-- Namespace `curso-kolbit` · Deployment y Service `curso-kolbit` (80 → 8080)
+- En kind: `k8s/` (base de Kustomize + overlay `kind`)
+- En producción: **GitOps con Flux** y Gateway API → `curso.malaleche.xyz`
 
 </div>
 <div>
@@ -30,14 +30,14 @@ Proyecto final · Repaso · CaaS · Próximos pasos
 ```bash
 make image          # podman/docker build
 make run            # localhost:8080
-make deploy         # kubectl apply -k
-make k8s-status
+make push           # GHCR
+make deploy         # digest en git → Flux
 ```
 
 </div>
 </div>
 
-<small>⏱ 90 min · `labs/lab-18-proyecto-final.md`</small>
+<small>⏱ 60 min · `labs/lab-18-proyecto-final.md`</small>
 
 ---
 
@@ -51,6 +51,8 @@ make k8s-status
 | requests/limits, PDB y antiafinidad | M6 |
 | securityContext `restricted` | M6 |
 | Kustomize con overlays por entorno | M5 |
+| GitOps: Flux aplica lo que hay en git | M5 |
+| HTTPRoute (Gateway API) + TLS con cert-manager | M4 |
 
 ```bash
 kubectl -n curso-kolbit get deploy,pods,svc -o wide

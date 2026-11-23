@@ -121,15 +121,21 @@ kubectl -n curso-kolbit rollout history deploy/curso-kolbit
 kubectl -n curso-kolbit rollout undo deploy/curso-kolbit
 ```
 
-### 8. Así se despliega en el clúster del profesor (Hetzner)
+### 8. Así se despliega en el clúster del profesor (GitOps con Flux)
 
-El profesor publica la imagen en GHCR desde su equipo y despliega con el overlay `hetzner`:
+En el clúster del profesor no se hace `kubectl apply`: la presentación la
+gestiona **Flux** desde el repositorio `belters-apps`. Desplegar una versión
+nueva consiste en cambiar el digest de la imagen en git:
 
 ```bash
 make image push        # ghcr.io/ibannieto/curso-kolbit:<git-sha>
-make deploy            # kubectl apply -k k8s/overlays/hetzner + rollout status
-make k8s-status
+make deploy PUSH=1     # commit "Deploy curso-kolbit <sha>" en belters-apps + flux reconcile
+curl -s https://curso.malaleche.xyz/version.json
 ```
+
+Si alguien cambia el Deployment a mano con `kubectl`, Flux lo devuelve al estado
+de git en la siguiente reconciliación. Al profesor le pasó preparando este
+curso: desplegó con `kubectl apply` y Flux restauró la versión anterior.
 
 ## Retos extra
 

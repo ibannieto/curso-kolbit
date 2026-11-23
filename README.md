@@ -11,6 +11,8 @@ Nieto Castillero.
 - **App de ejemplo:** [`examples/contador`](examples/contador), una API en
   Python con Redis que recorre todo el curso.
 - **PDF para los alumnos:** `make pdf`.
+- **Publicada en:** <https://curso.malaleche.xyz>, desplegada con Flux desde
+  `belters-apps`.
 
 ## Inicio rápido
 
@@ -32,7 +34,7 @@ slides/            Diapositivas (un .md por módulo), index.html y tema CSS
 assets/img/        Logos oficiales y Phippy & friends (CNCF), ver assets/SOURCES.md
 labs/              Laboratorios (lab-00 … lab-18)
 examples/contador/ App de ejemplo: Dockerfile, compose.yaml y manifiestos k8s
-k8s/               Despliegue de la presentación (Kustomize: base + overlays kind/hetzner)
+k8s/               Despliegue didáctico de la presentación (Kustomize: base + overlay kind)
 nginx/             Configuración de nginx para servir la presentación
 scripts/           build, servidor de desarrollo, smoke test, PDF, assets…
 docs/              Planificación, convenciones, versiones, desarrollo, despliegue, CI
@@ -48,7 +50,7 @@ docs/              Planificación, convenciones, versiones, desarrollo, desplieg
 | Comprobar la calidad | `make lint` | [docs/desarrollo.md](docs/desarrollo.md) |
 | Pipeline local completo | `make ci` | [docs/ci.md](docs/ci.md) |
 | Publicar la imagen en GHCR | `make login` y luego `make push` | [docs/despliegue.md](docs/despliegue.md) |
-| Desplegar en el clúster | `make deploy` | [docs/despliegue.md](docs/despliegue.md) |
+| Desplegar (GitOps en `belters-apps`) | `make deploy PUSH=1` | [docs/despliegue.md](docs/despliegue.md) |
 | Generar el PDF | `make pdf` | [docs/pdf.md](docs/pdf.md) |
 
 La imagen se **construye y se publica desde el equipo local** con podman, no
