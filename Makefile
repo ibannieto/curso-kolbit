@@ -159,6 +159,7 @@ release: ci push ## ci + push
 .PHONY: deploy
 deploy: ## Despliega IMAGE:TAG en el contexto actual (overlay hetzner)
 	@if [ -n "$(DIRTY)" ] && [ -z "$(FORCE)" ]; then echo "✖ Hay cambios sin commitear: el tag $(TAG) no existe en el registro. Haz commit + make image push, o usa FORCE=1"; exit 1; fi
+	@skopeo inspect --raw docker://$(IMAGE):$(TAG) >/dev/null 2>&1 || { echo "✖ $(IMAGE):$(TAG) no está en el registro (o no hay login). Ejecuta: make login push"; exit 1; }
 	@echo "Contexto: $$($(KUBECTL) config current-context)"
 	sed -i -E 's|^(    newTag: ).*(# managed-by: make deploy)$$|\1$(TAG) \2|' $(OVERLAY)/kustomization.yaml
 	$(KUBECTL) apply -k $(OVERLAY)
