@@ -51,6 +51,11 @@ Notas del ponente (tecla S). No aparecen en el PDF.
 | `meme-two` | Dos paneles (expectativa/realidad, lo que pido/lo que llega…) con `.tag` |
 | `meme-stamp` | Sello circular («Works on my machine») |
 | `meme-caption` | Pie grande de meme (`.top` para ponerlo arriba) |
+| `meme-iceberg` | Iceberg por niveles: hijos `.sky`, `.l1`…`.l5` con `data-label` y un `<span>` |
+| `meme-poll` | Encuesta: `.q` con la pregunta y una `<ol>` de opciones |
+| `meme-sticker` | Pegatina: `<b>` con el texto grande y `<span>` con el pequeño |
+| `quiz` (slide) | Quiz del día: lista numerada con la respuesta en `<span class="fragment answer">` |
+| `svg.diagram` | Diagrama SVG en línea, con las clases `box` (`k8s`, `node`, `pod`, `off`), `arrow` (`dashed`), `title`, `sub`, `mono`, `edge` y `step`. Sin líneas en blanco dentro del `<svg>` |
 | `center-v` (slide) | Centra el contenido en vertical |
 | `cols`, `cols three`, `cols wide-left` | Columnas: hijos `<div>`, con una línea en blanco tras abrir el `<div>` para que se interprete el Markdown |
 | `box`, `box tip`, `box warn`, `box danger` | Cajas destacadas |
@@ -75,7 +80,8 @@ Notas del ponente (tecla S). No aparecen en el PDF.
    que se está explicando. Los memes son **componentes HTML/CSS** (`meme-*`):
    un SVG cargado con `<img>` no puede usar las fuentes de la página. No se usan
    plantillas de memes con copyright (Drake, «This is fine»…); sí los personajes
-   oficiales de la CNCF de `assets/img/phippy/` y los formatos propios.
+   oficiales de la CNCF de `assets/img/phippy/`, los formatos clásicos de la
+   comunidad recreados en HTML (iceberg, encuesta, pegatina) y los propios.
 6. **Idioma:** español y tuteo. Los términos técnicos se dejan en inglés cuando
    es lo habitual (Pod, Deployment, rolling update…).
 7. Cada bloque teórico termina con una **diapositiva de laboratorio**

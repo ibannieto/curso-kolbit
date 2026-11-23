@@ -559,3 +559,14 @@ docker buildx imagetools inspect ghcr.io/USUARIO/contador:1.0.0 \
 Mañana: ¿y si tenemos 200 contenedores? **Kubernetes**.
 
 </div>
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Día 3
+
+1. ¿Por qué se copia `requirements.txt` antes que el código? <span class="fragment answer">Para reutilizar la capa de dependencias si solo cambia el código</span>
+2. ¿Qué ganas con un multi-stage build? <span class="fragment answer">La imagen final solo lleva lo necesario para ejecutar: menos tamaño y menos CVE</span>
+3. `CMD python app.py` frente a `CMD ["python", "app.py"]`: ¿qué cambia? <span class="fragment answer">La forma shell pone `/bin/sh` como PID 1 y la app no recibe SIGTERM</span>
+4. ¿Cómo usas un token durante el build sin que quede en la imagen? <span class="fragment answer">`RUN --mount=type=secret`. Nunca con `ARG` ni `ENV`</span>

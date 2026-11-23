@@ -110,8 +110,8 @@ nslookup redis
 exit
 ```
 
-> `--profile=restricted` cumple Pod Security `restricted`, el perfil que exige
-> el namespace `contador`.
+> `--profile=restricted` crea el contenedor efímero cumpliendo Pod Security
+> `restricted`: el namespace `contador` avisa de todo lo que no lo cumpla.
 
 ### 6. (Opcional) Prometheus y Grafana con Helm
 

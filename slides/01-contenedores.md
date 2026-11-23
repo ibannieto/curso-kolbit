@@ -303,17 +303,25 @@ Una imagen construida con Docker se ejecuta igual con Podman, containerd o CRI-O
 
 <!-- .slide: class="meme" -->
 
-<div class="meme-bubble">
-  <img src="assets/img/phippy/phippy.svg" alt="Phippy">
-  <div class="bubble">
-    «Kubernetes» viene del griego <em>timonel</em>.<br>
-    Y «k8s» son 8 letras entre la k y la s.
-    <small>Phippy, la app PHP que quería vivir en un contenedor · CNCF</small>
-  </div>
+<div class="meme-two">
+<div>
+<span class="tag">Lo que necesito</span>
+
+Servir **un HTML estático**
+
+</div>
+<div>
+<span class="tag">Lo que despliego</span>
+
+3 nodos · Cilium · cert-manager · Flux · External Secrets · Prometheus · PDB · NetworkPolicy · 2 réplicas
+
+</div>
 </div>
 
+<p class="meme-caption">Y sí: es exactamente lo que hace este curso con esta presentación.</p>
+
 Note:
-Phippy and Friends es el material oficial de la CNCF para explicar Kubernetes a niños (y a managers): «The Illustrated Children's Guide to Kubernetes».
+El clásico «he montado Kubernetes para mi blog personal». Sirve para hablar de cuándo NO hace falta Kubernetes: un par de contenedores en una VM se resuelven con Compose. Lo retomamos en el cierre (CaaS, ¿qué elijo?). Y la presentación del curso corre de verdad en un clúster así: lo desplegamos en el proyecto final.
 
 ---
 

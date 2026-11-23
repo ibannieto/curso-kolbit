@@ -3,6 +3,11 @@ kind: Namespace
 metadata:
   name: contador
   labels:
-    # Pod Security Admission: obliga a cumplir el perfil "restricted"
-    pod-security.kubernetes.io/enforce: restricted
+    # Pod Security Admission:
+    # - enforce baseline: bloquea lo peligroso (privileged, hostPath, hostNetwork…)
+    #   pero deja lanzar Pods de prueba (busybox con kubectl run) en los labs
+    # - warn/audit restricted: avisa de todo lo que no cumpliría "restricted".
+    #   La API y Redis sí lo cumplen; en el lab 16 se sube enforce a restricted.
+    pod-security.kubernetes.io/enforce: baseline
     pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

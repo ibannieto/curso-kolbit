@@ -15,6 +15,24 @@ Día 6: parte I (administración, recursos, multinodo, troubleshooting). Día 7:
 
 ---
 
+<!-- .slide: class="meme" -->
+
+<div class="meme-iceberg">
+<div class="sky" data-label="superficie"><span><code>kubectl apply</code> · Pods · Deployments · Services</span></div>
+<div class="l1" data-label="nivel 1"><span>ConfigMaps · Secrets · HPA · Gateway API · Helm</span></div>
+<div class="l2" data-label="nivel 2"><span>requests/limits · QoS · PDB · taints · RBAC · Pod Security</span></div>
+<div class="l3" data-label="nivel 3"><span>CNI · CSI · CRDs y operadores · admission webhooks · finalizers</span></div>
+<div class="l4" data-label="nivel 4"><span>quórum de etcd · certificados que caducan · <code>ndots:5</code> · conntrack lleno · CPU throttling sin superar el límite</span></div>
+<div class="l5" data-label="el abismo"><span>namespace en <code>Terminating</code> desde hace 3 semanas · «no puede ser DNS» (era DNS)</span></div>
+</div>
+
+<p class="meme-caption">El iceberg de Kubernetes. Hoy bajamos unos cuantos niveles.</p>
+
+Note:
+Formato clásico de meme de la comunidad. Lo que hay en cada nivel es real: ndots:5 (cada búsqueda DNS de un nombre corto prueba primero los dominios de búsqueda del clúster), la tabla conntrack del nodo llena con mucho tráfico UDP, el throttling por cuotas CFS aunque la CPU media sea baja, y los namespaces atascados en Terminating por un finalizer cuyo controlador ya no existe. Preguntar: ¿en qué nivel estáis?
+
+---
+
 ## ¿Qué hace quien administra un clúster?
 
 <div class="cols">
@@ -115,6 +133,36 @@ talosctl -n 10.0.0.5 etcd snapshot etcd.db
 Un backup que no has restaurado nunca es solo una esperanza.
 
 </div>
+
+---
+
+## Alta disponibilidad del control plane
+
+<div class="cols">
+<div>
+
+- **3 o 5** nodos de control plane: siempre un número impar
+- `etcd` necesita **quórum**, es decir, mayoría de miembros vivos
+- Un **balanceador** (o VIP) delante del API server, puerto 6443
+- Los workers se pierden sin drama: sus Pods se reprograman
+
+</div>
+<div>
+
+| Miembros etcd | Quórum | Fallos tolerados |
+| --- | --- | --- |
+| 1 | 1 | 0 |
+| 3 | 2 | **1** |
+| 4 | 3 | 1 |
+| 5 | 3 | **2** |
+
+<small>4 nodos toleran lo mismo que 3: por eso, impar.</small>
+
+</div>
+</div>
+
+Note:
+Sin quórum, etcd deja de aceptar escrituras: los Pods que ya corren siguen funcionando, pero no se puede cambiar nada (ni reprogramar). Topologías: etcd «stacked» (en los mismos nodos que el control plane, lo habitual con kubeadm y Talos) o externo. En el clúster de Hetzner del profesor hay 1 control plane: perfecto para demos, no para producción.
 
 ---
 
@@ -350,6 +398,24 @@ tolerations:
 
 ---
 
+## Añadir y retirar nodos
+
+```bash
+# Añadir (kubeadm): el token caduca en 24 h, genera uno nuevo
+kubeadm token create --print-join-command
+# Añadir (Talos): el nodo arranca en modo mantenimiento y recibe su config
+talosctl apply-config --insecure -n 10.0.0.9 --file worker.yaml
+
+# Retirar: vaciar, sacar del clúster y apagar la máquina
+kubectl drain worker-3 --ignore-daemonsets --delete-emptydir-data
+kubectl delete node worker-3
+```
+
+- En la nube, **Cluster Autoscaler** o **Karpenter** añaden y retiran nodos solos
+- Etiqueta los nodos (`topology.kubernetes.io/zone`, `node.kubernetes.io/instance-type`) para poder programar sobre ellos
+
+---
+
 ## Mantenimiento de nodos
 
 ```bash
@@ -565,6 +631,17 @@ Mañana: usuarios y RBAC, cuotas, almacenamiento persistente… y el proyecto fi
 
 ---
 
+<!-- .slide: class="quiz" -->
+
+## Día 6
+
+1. Un contenedor supera su limit de CPU. ¿Y si supera el de memoria? <span class="fragment answer">CPU: throttling (va más lento) · memoria: OOMKilled</span>
+2. ¿Qué QoS tiene un Pod con requests = limits en todos sus contenedores? <span class="fragment answer">Guaranteed: el último en ser desalojado</span>
+3. ¿Para qué sirve un taint? <span class="fragment answer">Para repeler Pods de un nodo, salvo los que lo toleren</span>
+4. Pod en CrashLoopBackOff: ¿qué miras primero? <span class="fragment answer">`kubectl logs --previous` y `kubectl describe pod`</span>
+
+---
+
 <!-- .slide: class="module center-v" -->
 
 <span class="kicker">Módulo 6 · Parte II · Día 7</span>
@@ -761,6 +838,41 @@ securityContext:          # lo que pide "restricted"
 
 ---
 
+## NetworkPolicy: el cortafuegos de los Pods
+
+- Por defecto, **todos los Pods hablan con todos**, de cualquier namespace
+- Una NetworkPolicy **selecciona Pods** y dice qué tráfico entrante o saliente se permite
+- En cuanto una política selecciona un Pod, **todo lo no permitido se deniega**
+- Solo hay reglas de permitir, y se suman entre sí
+- Las aplica el **CNI**: Cilium, Calico o kindnet en kind. Sin soporte se ignoran **sin avisar**
+
+Note:
+Multi-tenancy por namespace = RBAC + ResourceQuota/LimitRange + Pod Security + NetworkPolicy de denegar por defecto. La presentación del curso lleva una NetworkPolicy (k8s/base/networkpolicy.yaml): solo entrada al 8080 y ninguna salida.
+
+---
+
+## NetworkPolicy en YAML
+
+```yaml [1-6|7-9|10-15]
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis-solo-desde-api
+  namespace: contador
+spec:
+  podSelector:                     # a quién protege
+    matchLabels: { app.kubernetes.io/name: redis }
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:                        # quién puede entrar
+        - podSelector:
+            matchLabels: { app.kubernetes.io/name: api }
+      ports:
+        - port: 6379
+```
+
+---
+
 <!-- .slide: class="lab" -->
 
 ## Lab 16 · Usuarios y RBAC
@@ -769,12 +881,13 @@ securityContext:          # lo que pide "restricted"
 - Comprobar permisos con `kubectl auth can-i --as`
 - Crear el usuario `alumno` con openssl y la API CSR
 - Contexto de kubeconfig con permisos de solo lectura
+- NetworkPolicy: Redis solo accesible desde la API
 
 ```bash
 kubectl apply -f examples/contador/k8s/admin/rbac.yaml
 ```
 
-<small>⏱ 60 min · `labs/lab-16-rbac.md`</small>
+<small>⏱ 75 min · `labs/lab-16-rbac.md`</small>
 
 ---
 
@@ -954,9 +1067,9 @@ kubectl apply -f examples/contador/k8s/admin/redis-statefulset.yaml
 
 - **Admin**: upgrades con *skew policy*, backups de etcd y certificados
 - **Recursos**: requests/limits, QoS, LimitRange e in-place resize
-- **Multinodo**: afinidad, taints, spread, drain y PDB
+- **Multinodo**: HA del control plane, nodos, afinidad, taints, drain y PDB
 - **Troubleshooting**: metodología y `kubectl debug`
-- **Seguridad**: authn/authz, RBAC con mínimo privilegio, Pod Security
+- **Seguridad**: authn/authz, RBAC con mínimo privilegio, Pod Security y NetworkPolicy
 - **Datos**: cuotas, StorageClass, PVC, StatefulSet y snapshots
 
 Note:

@@ -388,6 +388,17 @@ Un volumen sin contenedor «en uso» no es un volumen sin importancia. Si la BD 
 
 ---
 
+<!-- .slide: class="quiz" -->
+
+## Día 1
+
+1. ¿Qué comparte un contenedor con el host que una VM no comparte? <span class="fragment answer">El kernel</span>
+2. ¿Qué mecanismo del kernel limita la memoria de un contenedor? <span class="fragment answer">cgroups (los namespaces limitan lo que *ve*)</span>
+3. `docker run -d -p 8080:80 nginx`: ¿en qué puerto escucha nginx dentro del contenedor? <span class="fragment answer">En el 80. El 8080 es el del host</span>
+4. Un contenedor con `--memory 256m` pasa de 256 MiB. ¿Qué ocurre? <span class="fragment answer">El kernel lo mata: OOMKilled, exit code 137</span>
+
+---
+
 <!-- .slide: class="docker" -->
 
 ## Día 2 · Imágenes: capas
@@ -843,3 +854,14 @@ eager_lovelace    Exited (1) 2 weeks ago
 Siguiente: construir **nuestras propias imágenes**.
 
 </div>
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Día 2
+
+1. ¿Por qué `:latest` es mala idea en producción? <span class="fragment answer">Es una etiqueta mutable: no sabes qué versión ejecutas</span>
+2. Dos contenedores en la red `bridge` por defecto: ¿se resuelven por nombre? <span class="fragment answer">No. Solo en una red de usuario</span>
+3. ¿Dónde guardarías los datos de una base de datos? <span class="fragment answer">En un volumen con nombre, nunca en la capa del contenedor</span>
+4. ¿Qué hace `depends_on` con `condition: service_healthy`? <span class="fragment answer">Espera a que pase el healthcheck del servicio antes de arrancar el que depende de él</span>

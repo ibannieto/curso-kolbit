@@ -1,0 +1,47 @@
+# Lab 16 · NetworkPolicy para el namespace contador
+# 1. Denegar por defecto todo el tráfico ENTRANTE a los Pods del namespace
+# 2. La API acepta tráfico en el 8080 (desde cualquier origen)
+# 3. Redis solo acepta tráfico de la API, en el 6379
+# En kind las aplica kindnet (kube-network-policies, desde kind 0.24).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: denegar-entrada
+  namespace: contador
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-entrada-http
+  namespace: contador
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: api
+  policyTypes: ["Ingress"]
+  ingress:
+    - ports:
+        - port: 8080
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis-solo-desde-api
+  namespace: contador
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: api
+      ports:
+        - port: 6379
+          protocol: TCP

@@ -52,7 +52,7 @@ kubectl kustomize examples/contador/k8s | less
 
 Busca en la salida:
 
-- El namespace `contador`, con Pod Security `restricted`
+- El namespace `contador`, con Pod Security `baseline` (obligatorio) y `restricted` (solo avisos)
 - Cómo `api.yaml` usa `envFrom` (ConfigMap) y `secretKeyRef` (Secret)
 - Cómo Redis recibe la contraseña con `--requirepass $(REDIS_PASSWORD)`
 - Las tres probes de la API y su `securityContext`

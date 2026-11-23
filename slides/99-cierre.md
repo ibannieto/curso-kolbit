@@ -83,6 +83,17 @@ kubectl -n curso-kolbit get deploy,pods,svc -o wide
 
 ---
 
+<!-- .slide: class="meme" -->
+
+<div class="meme-sticker"><b>There is no cloud</b><span>it's just someone else's computer</span></div>
+
+<p class="meme-caption">Y en CaaS, el contenedor es tuyo… pero el resto es de otro.</p>
+
+Note:
+La pegatina clásica de la FSFE. Da pie a hablar de qué delegas al elegir un CaaS: operación del control plane, parches del SO, escalado de nodos… y qué sigue siendo responsabilidad tuya (la imagen, la configuración, los datos y la seguridad de tu app).
+
+---
+
 ## CaaS, otra vez: ¿qué elijo?
 
 | Necesito… | Opción |
@@ -124,6 +135,17 @@ kubectl -n curso-kolbit get deploy,pods,svc -o wide
 Practica con tu propio clúster kind: rómpelo, arréglalo y vuelve a empezar.
 
 </div>
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Día 7
+
+1. ¿Qué objeto da a un Pod una identidad para hablar con la API? <span class="fragment answer">Un ServiceAccount</span>
+2. Role frente a ClusterRole <span class="fragment answer">Role: dentro de un namespace · ClusterRole: todo el clúster o reutilizable con un RoleBinding</span>
+3. Un PVC con `WaitForFirstConsumer` está en Pending. ¿Hay un error? <span class="fragment answer">No: el volumen se crea cuando un Pod lo usa, en la zona de su nodo</span>
+4. Por defecto, ¿pueden hablar todos los Pods entre sí? <span class="fragment answer">Sí. Para restringirlo: NetworkPolicy, con un CNI que la aplique</span>
 
 ---
 

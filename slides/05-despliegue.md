@@ -551,6 +551,17 @@ Siguiente: administrar el clúster (recursos, nodos, RBAC, cuotas y almacenamien
 
 ---
 
+<!-- .slide: class="quiz" -->
+
+## Día 5
+
+1. Readiness frente a liveness: ¿qué hace cada una al fallar? <span class="fragment answer">Readiness saca el Pod del Service; liveness reinicia el contenedor</span>
+2. ¿Qué necesita el HPA para escalar por CPU? <span class="fragment answer">metrics-server y que los Pods declaren `requests` de CPU</span>
+3. ¿Un Secret va cifrado? <span class="fragment answer">No por defecto: es base64. Hace falta cifrado en reposo de etcd y RBAC</span>
+4. Cambias un ConfigMap que la app lee como variable de entorno. ¿Se entera? <span class="fragment answer">No, hasta que se recrean los Pods (`kubectl rollout restart`)</span>
+
+---
+
 ## Referencias
 
 - Kustomize: [kubectl.docs.kubernetes.io](https://kubectl.docs.kubernetes.io/)

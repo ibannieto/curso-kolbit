@@ -171,3 +171,62 @@
 /* Sello "Works on my machine" */
 .reveal .meme-stamp { display: inline-block; border: 10px double var(--k-ok); color: var(--k-ok); border-radius: 50%; width: 360px; height: 360px; transform: rotate(-12deg); font-weight: 700; font-size: 0.9em; line-height: 1.15; text-transform: uppercase; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 1em; box-sizing: border-box; margin-top: 0.3em; }
 .reveal .meme-stamp small { display: block; color: var(--k-ok); font-size: 0.55em; margin-top: 0.4em; }
+
+/* Iceberg: <div class="meme-iceberg"><div class="sky"><span>…</span></div><div class="l1" data-label="…"><span>…</span></div>…</div> */
+.reveal .meme-iceberg { border-radius: 12px; overflow: hidden; font-size: 0.7em; text-align: center; margin-top: 0.1em; }
+.reveal .meme-iceberg > div { position: relative; display: flex; justify-content: center; padding: 0.5em 0.6em 0.5em 6.5em; }
+.reveal .meme-iceberg > div::before { content: attr(data-label); position: absolute; left: 0.7em; top: 50%; transform: translateY(-50%); width: 5.5em; font-family: var(--r-code-font); font-size: 0.72em; color: rgba(255, 255, 255, 0.8); text-align: left; line-height: 1.2; }
+.reveal .meme-iceberg .sky::before { color: #12355e; }
+.reveal .meme-iceberg span { display: block; background: #eaf6fd; color: #0d1424; font-weight: 700; padding: 0.45em 1.4em; line-height: 1.3; clip-path: polygon(3% 0, 97% 0, 100% 100%, 0 100%); }
+.reveal .meme-iceberg span code { background: transparent; color: #12407a; padding: 0; font-size: 0.95em; }
+.reveal .meme-iceberg .sky { background: linear-gradient(#bfe4f7, #8fcbea); padding-top: 0.8em; }
+.reveal .meme-iceberg .sky span { width: 56%; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%); }
+.reveal .meme-iceberg .l1 { background: #2a6fa8; border-top: 3px dashed #ffffff; }
+.reveal .meme-iceberg .l1 span { width: 64%; }
+.reveal .meme-iceberg .l2 { background: #1f5788; }
+.reveal .meme-iceberg .l2 span { width: 74%; background: #d9eef9; }
+.reveal .meme-iceberg .l3 { background: #17406a; }
+.reveal .meme-iceberg .l3 span { width: 84%; background: #c6e3f4; }
+.reveal .meme-iceberg .l4 { background: #0f2b4a; }
+.reveal .meme-iceberg .l4 span { width: 94%; background: #b0d4ea; }
+.reveal .meme-iceberg .l5 { background: #06111f; padding-bottom: 0.8em; }
+.reveal .meme-iceberg .l5 span { width: 100%; background: #8fb8d4; }
+
+/* Encuesta: <div class="meme-poll"><p class="q">…</p><ol><li>…</li></ol></div> */
+.reveal .meme-poll { width: 70%; margin: 0.3em auto 0; background: var(--k-bg-soft); border-radius: 16px; padding: 0.7em 1em; text-align: left; }
+.reveal .meme-poll .q { margin: 0 0 0.5em; font-weight: 700; font-size: 1.05em; }
+.reveal .meme-poll ol { list-style: none; margin: 0; padding: 0; }
+.reveal .meme-poll li { border: 2px solid #2b3a5c; border-radius: 999px; padding: 0.3em 0.9em; margin: 0.35em 0; font-family: var(--r-code-font); font-size: 0.85em; }
+.reveal .meme-poll li::marker { content: none; }
+
+/* Pegatina: <div class="meme-sticker"><b>…</b><span>…</span></div> */
+.reveal .meme-sticker { display: inline-block; background: #000; color: #fff; border-radius: 22px; padding: 0.8em 1.4em; transform: rotate(-3deg); box-shadow: 0 0 0 6px #fff; margin: 0.6em auto 0.3em; text-align: center; }
+.reveal .meme-sticker b { display: block; font-size: 1.9em; line-height: 1.1; }
+.reveal .meme-sticker span { display: block; font-size: 0.9em; margin-top: 0.3em; }
+
+/* Quiz del día: <!-- .slide: class="quiz" --> + lista numerada; respuestas en <span class="fragment answer"> */
+.reveal section.quiz h2 { border-left-color: var(--k-warn); }
+.reveal section.quiz h2::before { content: 'QUIZ · '; font-family: var(--r-code-font); color: var(--k-warn); font-size: 0.7em; vertical-align: middle; }
+.reveal section.quiz ol { font-size: 0.82em; }
+.reveal section.quiz li { margin: 0.45em 0; }
+.reveal section.quiz .answer { display: block; color: var(--k-ok); font-size: 0.85em; margin-top: 0.1em; }
+.reveal section.quiz .answer::before { content: '→ '; }
+
+/* Diagramas SVG en línea (usan las fuentes de la página) */
+.reveal svg.diagram { display: block; width: 100%; height: auto; margin: 0.2em auto 0; overflow: visible; }
+.reveal svg.diagram text { font-family: var(--r-main-font); fill: var(--k-fg); font-size: 22px; }
+.reveal svg.diagram text.title { font-weight: 700; font-size: 25px; fill: #fff; }
+.reveal svg.diagram text.sub { font-size: 17px; fill: var(--k-muted); }
+.reveal svg.diagram text.mono { font-family: var(--r-code-font); font-size: 17px; fill: var(--k-accent); }
+.reveal svg.diagram text.step { font-weight: 700; font-size: 20px; fill: var(--k-bg); }
+.reveal svg.diagram text.edge { font-size: 16px; fill: var(--k-muted); }
+.reveal svg.diagram .box { fill: var(--k-bg-soft); stroke: #2f4370; stroke-width: 2; }
+.reveal svg.diagram .box.k8s { stroke: var(--k-k8s); stroke-width: 3; }
+.reveal svg.diagram .box.node { fill: none; stroke: #2f4370; stroke-dasharray: 6 5; }
+.reveal svg.diagram .box.pod { fill: #0a0f1c; stroke: var(--k-ok); }
+.reveal svg.diagram .box.off { fill: none; stroke: #3a4560; stroke-dasharray: 4 4; }
+.reveal svg.diagram .off text, .reveal svg.diagram text.off { fill: #5d6a84; }
+.reveal svg.diagram .arrow { stroke: var(--k-accent); stroke-width: 2.5; fill: none; }
+.reveal svg.diagram .arrow.dashed { stroke-dasharray: 7 6; }
+.reveal svg.diagram .arrowhead { fill: var(--k-accent); }
+.reveal svg.diagram circle.step { fill: var(--k-warn); }

@@ -41,14 +41,32 @@ El objetivo es mantener la presentación compacta. Se comprueba con `make stats`
 
 | Fichero | Módulo | Objetivo |
 | --- | --- | --- |
-| `00-bienvenida.md` | Portada, presentación y logística | ~10 |
-| `01-contenedores.md` | M1 | ~22 |
-| `02-docker.md` | M2 | ~38 |
-| `03-imagenes.md` | M3 | ~30 |
-| `04-kubernetes.md` | M4 | ~35 |
-| `05-despliegue.md` | M5 | ~32 |
-| `06-administracion.md` | M6 | ~40 |
-| `99-cierre.md` | Proyecto final, CaaS y despedida | ~8 |
+| `00-bienvenida.md` | Portada, presentación y logística | 8 |
+| `01-contenedores.md` | M1 | 19 |
+| `02-docker.md` | M2 (incluye los quizzes de los días 1 y 2) | 43 |
+| `03-imagenes.md` | M3 | 30 |
+| `04-kubernetes.md` | M4 | 42 |
+| `05-despliegue.md` | M5 | 33 |
+| `06-administracion.md` | M6 (días 6 y 7) | 52 |
+| `99-cierre.md` | Proyecto final, CaaS y despedida | 10 |
+| **Total** | | **237** (unas 10 h de exposición) |
+
+Cada día termina con una diapositiva **Quiz** (`class="quiz"`): cuatro
+preguntas con la respuesta oculta en un fragmento.
+
+### Margen por día
+
+Teoría estimada más laboratorios, sobre unas 5 h útiles por día:
+
+| Día | Teoría | Labs | Total | Margen |
+| --- | --- | --- | --- | --- |
+| 1 | ~2 h | 2 h | ~4 h | ~1 h (presentaciones, instalación) |
+| 2 | ~1 h | 3 h | ~4 h | ~1 h |
+| 3 | ~1,3 h | 2,5 h | ~3,8 h | **~1,2 h**: reto opcional «conteneriza tu propia app» |
+| 4 | ~1,8 h | 2,75 h | ~4,5 h | ~0,5 h |
+| 5 | ~1,4 h | 2,75 h | ~4,1 h | ~0,9 h |
+| 6 | ~1,3 h | 2,75 h | ~4 h | ~1 h: el troubleshooting suele alargarse |
+| 7 | ~1,3 h | 3,25 h | ~4,5 h | ~0,2 h (termina a las 14:00) |
 
 ## Hilo conductor
 

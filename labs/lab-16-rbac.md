@@ -6,10 +6,11 @@
 - Comprobar permisos con `kubectl auth can-i --as`
 - Crear un usuario humano (`alumno`) con certificado X.509 mediante la API CSR
 - Configurar un contexto de kubeconfig con permisos de solo lectura
+- Aislar Redis con una NetworkPolicy para que solo la API pueda conectarse
 
 ## Duración
 
-60 minutos.
+75 minutos.
 
 ## Requisitos
 
@@ -121,6 +122,41 @@ kubectl create rolebinding alumnos-view -n default --clusterrole=view --group=al
 kubectl --context alumno@curso get pods -n default   # ahora sí
 ```
 
+### 7. NetworkPolicy: Redis solo para la API
+
+Antes de aplicar nada, cualquier Pod del clúster llega a Redis:
+
+```bash
+kubectl run intruso -n contador --rm -it --image=busybox:1.38 --restart=Never -- \
+  nc -zv -w 3 redis 6379
+# redis (10.96.x.x:6379) open
+```
+
+Verás un aviso de Pod Security (`would violate PodSecurity "restricted"`): el
+namespace solo *avisa* de `restricted`, así que el Pod se crea igualmente.
+
+Aplica las políticas y repite la prueba:
+
+```bash
+kubectl apply -f examples/contador/k8s/admin/networkpolicy.yaml
+kubectl get networkpolicy -n contador
+
+kubectl run intruso -n contador --rm -it --image=busybox:1.38 --restart=Never -- \
+  nc -zv -w 3 redis 6379
+# nc: redis (10.96.x.x:6379): Connection timed out
+```
+
+La API sigue funcionando, porque sus Pods sí tienen permitido el acceso:
+
+```bash
+kubectl -n contador port-forward svc/api 8080:80 &
+curl -s localhost:8080/        # el contador sigue subiendo
+kill %1
+```
+
+> El tráfico denegado **no da error**: simplemente no llega (timeout). Es lo que
+> verás cuando una NetworkPolicy bloquee algo que no esperabas.
+
 ## Retos extra
 
 1. Revisa quién tiene `cluster-admin` en tu clúster:
@@ -128,8 +164,9 @@ kubectl --context alumno@curso get pods -n default   # ahora sí
 2. Crea un Pod que use la ServiceAccount `ci-deployer` (`serviceAccountName`) con la imagen
    oficial `registry.k8s.io/kubectl:v1.37.2`, y lista los Deployments desde dentro.
    ¿Qué pasa con `automountServiceAccountToken: false`?
-3. Etiqueta el namespace `contador` con `pod-security.kubernetes.io/enforce=restricted`
-   y comprueba qué Pods de los labs anteriores ya no se podrían crear.
+3. El namespace `contador` aplica `baseline` y solo avisa de `restricted`. Sube el nivel con
+   `kubectl label ns contador pod-security.kubernetes.io/enforce=restricted --overwrite`
+   y comprueba que la API y Redis siguen arrancando, pero un `kubectl run` de busybox ya no.
 4. ¿Cómo «revocarías» el certificado de `alumno`? (Pista: no se puede; borra su RoleBinding.)
 
 ## Limpieza
@@ -140,4 +177,5 @@ kubectl config delete-context alumno@curso; kubectl config delete-user alumno
 kubectl config delete-context ci@curso;     kubectl config delete-user ci-deployer
 kubectl delete csr alumno
 kubectl delete rolebinding alumnos-view -n default
+kubectl delete -f examples/contador/k8s/admin/networkpolicy.yaml
 ```

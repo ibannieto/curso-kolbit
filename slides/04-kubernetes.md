@@ -134,22 +134,51 @@ Phippy (la app), Captain Kube (el timonel), Zee (Pod), Goldie (Service)... Mater
 
 ---
 
-## Todo pasa por el API server
+## Qué pasa al hacer `kubectl apply`
 
-```text
- kubectl ──► kube-apiserver ◄──► etcd
-                 ▲   ▲
-     ┌───────────┘   └────────────┐
- scheduler                controllers
-                 ▲
-       ┌─────────┴─────────┐
-    kubelet             kubelet
-   (nodo 1)            (nodo 2)
-   containerd          containerd
-```
+<svg class="diagram" viewBox="0 0 1200 520" role="img" aria-label="Flujo de kubectl apply: API server, etcd, controladores, scheduler y kubelet">
+<defs><marker id="ah-api" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="box" x="30" y="70" width="190" height="64" rx="12"/>
+<text class="mono" x="125" y="108" text-anchor="middle">kubectl apply</text>
+<rect class="box k8s" x="420" y="56" width="340" height="92" rx="14"/>
+<text class="title" x="590" y="96" text-anchor="middle">kube-apiserver</text>
+<text class="sub" x="590" y="124" text-anchor="middle">única puerta de entrada</text>
+<rect class="box" x="950" y="56" width="220" height="92" rx="14"/>
+<text class="title" x="1060" y="96" text-anchor="middle">etcd</text>
+<text class="sub" x="1060" y="124" text-anchor="middle">estado del clúster</text>
+<rect class="box" x="40" y="236" width="330" height="80" rx="14"/>
+<text class="title" x="205" y="270" text-anchor="middle">controller-manager</text>
+<text class="sub" x="205" y="298" text-anchor="middle">Deployment → ReplicaSet → Pods</text>
+<rect class="box" x="830" y="236" width="330" height="80" rx="14"/>
+<text class="title" x="995" y="270" text-anchor="middle">scheduler</text>
+<text class="sub" x="995" y="298" text-anchor="middle">elige un nodo para cada Pod</text>
+<rect class="box node" x="150" y="380" width="420" height="124" rx="14"/>
+<text class="sub" x="170" y="408">Nodo 1</text>
+<text class="title" x="360" y="412" text-anchor="middle">kubelet</text>
+<rect class="box pod" x="200" y="428" width="320" height="56" rx="10"/>
+<text class="mono" x="360" y="463" text-anchor="middle">containerd → Pod web-1</text>
+<rect class="box node" x="630" y="380" width="420" height="124" rx="14"/>
+<text class="sub" x="650" y="408">Nodo 2</text>
+<text class="title" x="840" y="412" text-anchor="middle">kubelet</text>
+<rect class="box pod" x="680" y="428" width="320" height="56" rx="10"/>
+<text class="mono" x="840" y="463" text-anchor="middle">containerd → Pod web-2</text>
+<line class="arrow" x1="222" y1="102" x2="414" y2="102" marker-end="url(#ah-api)"/>
+<line class="arrow" x1="764" y1="102" x2="944" y2="102" marker-start="url(#ah-api)" marker-end="url(#ah-api)"/>
+<line class="arrow" x1="250" y1="232" x2="470" y2="152" marker-start="url(#ah-api)" marker-end="url(#ah-api)"/>
+<line class="arrow" x1="950" y1="232" x2="710" y2="152" marker-start="url(#ah-api)" marker-end="url(#ah-api)"/>
+<line class="arrow" x1="470" y1="376" x2="565" y2="152" marker-start="url(#ah-api)" marker-end="url(#ah-api)"/>
+<line class="arrow" x1="730" y1="376" x2="615" y2="152" marker-start="url(#ah-api)" marker-end="url(#ah-api)"/>
+<circle class="step" cx="318" cy="76" r="17"/><text class="step" x="318" y="83" text-anchor="middle">1</text>
+<text class="edge" x="318" y="130" text-anchor="middle">manifiesto</text>
+<circle class="step" cx="855" cy="76" r="17"/><text class="step" x="855" y="83" text-anchor="middle">2</text>
+<text class="edge" x="855" y="130" text-anchor="middle">guarda</text>
+<circle class="step" cx="335" cy="170" r="17"/><text class="step" x="335" y="177" text-anchor="middle">3</text>
+<circle class="step" cx="865" cy="170" r="17"/><text class="step" x="865" y="177" text-anchor="middle">4</text>
+<circle class="step" cx="590" cy="300" r="17"/><text class="step" x="590" y="307" text-anchor="middle">5</text>
+<text class="edge" x="590" y="345" text-anchor="middle">watch + estado</text>
+</svg>
 
-- Ningún componente habla directamente con otro: todos **observan** (watch) el API server
-- `etcd` solo lo toca el API server
+<small>**1** envías el manifiesto · **2** se guarda en etcd · **3** los controladores crean ReplicaSet y Pods · **4** el scheduler asigna nodo · **5** el kubelet arranca el contenedor y reporta. Nadie habla con nadie: todos **observan** el API server.</small>
 
 Note:
 Recorrer qué ocurre al hacer kubectl apply de un Deployment: API → etcd → controller crea ReplicaSet → Pods → scheduler asigna nodo → kubelet arranca contenedores.
@@ -291,6 +320,30 @@ kubectl get nodes
 
 ---
 
+## ¿Y un clúster «de verdad»? kubeadm
+
+```bash
+# 1. Primer nodo de control plane (requiere containerd y kubelet instalados)
+sudo kubeadm init --control-plane-endpoint api.midominio.lan:6443 \
+  --pod-network-cidr 10.244.0.0/16
+
+# 2. Plugin de red (CNI): sin él, los nodos se quedan en NotReady
+cilium install
+
+# 3. En cada worker: el comando exacto lo imprime kubeadm init
+sudo kubeadm join api.midominio.lan:6443 --token <token> \
+  --discovery-token-ca-cert-hash sha256:<hash>
+
+kubectl get nodes -o wide
+```
+
+<small>kubeadm, kubelet y kubectl de la **misma minor** (paquetes de `pkgs.k8s.io`). Talos o un gestionado hacen todo esto por ti; kubeadm es lo que pide la CKA.</small>
+
+Note:
+No lo hacemos en el lab (kind ya usa kubeadm por dentro: cada contenedor de kind ejecuta kubeadm init/join). Si sobra tiempo, enseñar en directo el clúster Talos de Hetzner: kubectl get nodes -o wide, los Pods de kube-system (Cilium, hcloud-csi, coredns) y talosctl dashboard.
+
+---
+
 ## kubeconfig y contextos
 
 - `~/.kube/config` guarda **clusters**, **usuarios** y **contextos**
@@ -322,6 +375,25 @@ kubectl exec -it web -- sh          # shell dentro del contenedor
 kubectl port-forward pod/web 8080:80
 kubectl explain deployment.spec.strategy
 ```
+
+---
+
+<!-- .slide: class="meme" -->
+
+<div class="meme-poll">
+<p class="q">Encuesta seria: ¿cómo se pronuncia <code>kubectl</code>?</p>
+<ol>
+<li>kube-control</li>
+<li>kube-ce-te-ele</li>
+<li>kube-cuttle</li>
+<li>kube-cuddle</li>
+</ol>
+</div>
+
+<p class="meme-caption">No hay respuesta oficial. Sí hay equipos que no se hablan por esto.</p>
+
+Note:
+Lanzar la encuesta en el chat de Teams. Es un debate real y eterno en la comunidad. Lo importante: todo el mundo os entenderá digáis lo que digáis.
 
 ---
 
@@ -441,6 +513,49 @@ initContainers:
 - Mantiene la lista de destinos en **EndpointSlices**
 
 <img src="assets/img/phippy/goldie.svg" alt="Goldie" style="height:200px">
+
+---
+
+## Cómo llega el tráfico a un Pod
+
+<svg class="diagram" viewBox="0 0 1200 450" role="img" aria-label="Un Pod cliente resuelve el Service por DNS y kube-proxy reparte el tráfico entre los Pods con la etiqueta app=web">
+<defs><marker id="ah-svc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="box" x="20" y="30" width="230" height="84" rx="12"/>
+<text class="title" x="135" y="66" text-anchor="middle">CoreDNS</text>
+<text class="mono" x="135" y="94" text-anchor="middle">web → 10.96.0.20</text>
+<rect class="box pod" x="20" y="190" width="230" height="84" rx="12"/>
+<text class="title" x="135" y="226" text-anchor="middle">Pod cliente</text>
+<text class="mono" x="135" y="254" text-anchor="middle">curl http://web</text>
+<rect class="box k8s" x="350" y="150" width="300" height="140" rx="14"/>
+<text class="title" x="500" y="190" text-anchor="middle">Service web</text>
+<text class="mono" x="500" y="222" text-anchor="middle">10.96.0.20:80</text>
+<text class="mono" x="500" y="252" text-anchor="middle">selector: app=web</text>
+<rect class="box" x="350" y="340" width="300" height="90" rx="12"/>
+<text class="title" x="500" y="374" text-anchor="middle">EndpointSlice</text>
+<text class="sub" x="500" y="402" text-anchor="middle">IPs de los Pods listos</text>
+<rect class="box pod" x="790" y="20" width="390" height="80" rx="12"/>
+<text class="title" x="810" y="54">web-1</text><text class="mono" x="810" y="82">app=web · 10.244.1.5</text>
+<rect class="box pod" x="790" y="120" width="390" height="80" rx="12"/>
+<text class="title" x="810" y="154">web-2</text><text class="mono" x="810" y="182">app=web · 10.244.2.7</text>
+<rect class="box pod" x="790" y="220" width="390" height="80" rx="12"/>
+<text class="title" x="810" y="254">web-3</text><text class="mono" x="810" y="282">app=web · 10.244.2.9</text>
+<g class="off"><rect class="box off" x="790" y="340" width="390" height="80" rx="12"/>
+<text class="title off" x="810" y="374">db-0</text><text class="sub off" x="810" y="402">app=db · no coincide: no recibe tráfico</text></g>
+<line class="arrow dashed" x1="135" y1="186" x2="135" y2="118" marker-end="url(#ah-svc)"/>
+<line class="arrow" x1="254" y1="232" x2="344" y2="222" marker-end="url(#ah-svc)"/>
+<line class="arrow dashed" x1="500" y1="294" x2="500" y2="336" marker-start="url(#ah-svc)" marker-end="url(#ah-svc)"/>
+<line class="arrow" x1="654" y1="200" x2="784" y2="62" marker-end="url(#ah-svc)"/>
+<line class="arrow" x1="654" y1="215" x2="784" y2="160" marker-end="url(#ah-svc)"/>
+<line class="arrow" x1="654" y1="232" x2="784" y2="258" marker-end="url(#ah-svc)"/>
+<circle class="step" cx="105" cy="152" r="17"/><text class="step" x="105" y="159" text-anchor="middle">1</text>
+<circle class="step" cx="300" cy="200" r="17"/><text class="step" x="300" y="207" text-anchor="middle">2</text>
+<circle class="step" cx="720" cy="120" r="17"/><text class="step" x="720" y="127" text-anchor="middle">3</text>
+</svg>
+
+<small>**1** el nombre se resuelve a la IP virtual · **2** el cliente conecta a esa IP · **3** kube-proxy (o eBPF con Cilium) reparte entre los Pods **listos** con la etiqueta del selector.</small>
+
+Note:
+Si el selector no coincide con las etiquetas, la EndpointSlice queda vacía y el Service «no responde»: es uno de los fallos del lab de troubleshooting. Un Pod que no pasa la readiness también sale de la lista.
 
 ---
 
@@ -709,6 +824,17 @@ kubectl annotate deployment/web \
 Siguiente: desplegar una aplicación de verdad, con configuración, secretos y autoescalado.
 
 </div>
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Día 4
+
+1. ¿Qué componente es el único que habla con etcd? <span class="fragment answer">`kube-apiserver`</span>
+2. Borras un Pod de un Deployment de 3 réplicas. ¿Qué pasa? <span class="fragment answer">El ReplicaSet crea otro: el estado deseado sigue siendo 3</span>
+3. ¿Cómo sabe un Service a qué Pods mandar tráfico? <span class="fragment answer">Por su selector de labels (las EndpointSlices)</span>
+4. ¿Cómo vuelves a la versión anterior de un Deployment? <span class="fragment answer">`kubectl rollout undo deployment/web`</span>
 
 ---
 

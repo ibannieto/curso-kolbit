@@ -193,6 +193,12 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.76.
    `python -m py_compile app.py`, y haz que la etapa final dependa de ella.
 2. Pasa `hadolint` a todos los Dockerfiles del repositorio con un bucle `find`.
 3. Fija la imagen base por digest y comprueba que el build sigue siendo reproducible.
+4. **Reto del día: conteneriza tu propia app.** Elige una aplicación tuya (o de
+   tu equipo) y escríbele un Dockerfile aplicando el checklist del módulo:
+   multi-stage, usuario no root, `.dockerignore`, versiones fijadas,
+   `HEALTHCHECK` y parada limpia con SIGTERM. Pásale hadolint y Trivy, y
+   compara el tamaño con el de la imagen que usáis hoy, si existe. Al final,
+   se comentan dos o tres en común.
 
 ## Limpieza
 

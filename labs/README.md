@@ -21,7 +21,7 @@ requisitos, pasos con la salida esperada, retos extra y limpieza.
 | [13](lab-13-monitorizacion-logs.md) | 5 | M5 | Monitorización y logs | 60 min |
 | [14](lab-14-recursos-scheduling.md) | 6 | M6 | Recursos, límites y scheduling | 75 min |
 | [15](lab-15-troubleshooting.md) | 6 | M6 | Troubleshooting | 90 min |
-| [16](lab-16-rbac.md) | 7 | M6 | Usuarios y RBAC | 60 min |
+| [16](lab-16-rbac.md) | 7 | M6 | Usuarios, RBAC y NetworkPolicy | 75 min |
 | [17](lab-17-cuotas-almacenamiento.md) | 7 | M6 | Cuotas y almacenamiento persistente | 60 min |
 | [18](lab-18-proyecto-final.md) | 7 | — | Proyecto final: desplegar esta presentación | 60 min |
 
