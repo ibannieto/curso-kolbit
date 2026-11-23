@@ -8,7 +8,7 @@ resources:
 images:
   - name: curso-kolbit
     newName: ghcr.io/ibannieto/curso-kolbit
-    newTag: 7af8ddd # managed-by: make deploy
+    newTag: c1164c5 # managed-by: make deploy
 patches:
   - target:
       kind: Namespace
