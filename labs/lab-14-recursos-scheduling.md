@@ -9,7 +9,7 @@
 
 ## Duración
 
-60 minutos.
+75 minutos.
 
 ## Requisitos
 
@@ -147,6 +147,7 @@ Ahora provoca un bloqueo. Con 2 réplicas y `minAvailable: 2`, no se puede desal
 ```bash
 kubectl uncordon curso-worker
 kubectl rollout restart deploy/api -n contador && kubectl rollout status deploy/api -n contador
+kubectl get pods -n contador -l app.kubernetes.io/name=api -o wide   # una réplica en cada worker
 kubectl patch pdb api -n contador --type=merge -p '{"spec":{"minAvailable":2}}'
 kubectl drain curso-worker2 --ignore-daemonsets --delete-emptydir-data --timeout=30s
 ```

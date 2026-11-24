@@ -70,6 +70,7 @@ El driver local-path crea directorios en el disco del nodo: perfecto para labora
 
 ```bash
 kubectl port-forward -n contador svc/api 8080:80 >/dev/null &
+sleep 1
 for i in 1 2 3; do curl -s localhost:8080/; done
 kubectl delete pod -n contador -l app.kubernetes.io/name=redis
 sleep 10; curl -s localhost:8080/

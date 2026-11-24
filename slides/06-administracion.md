@@ -465,7 +465,7 @@ spec:
 kubectl get pods -o custom-columns=NAME:.metadata.name,QOS:.status.qosClass,NODE:.spec.nodeName
 ```
 
-<small>⏱ 60 min · `labs/lab-14-recursos-scheduling.md`</small>
+<small>⏱ 75 min · `labs/lab-14-recursos-scheduling.md`</small>
 
 ---
 
@@ -547,7 +547,7 @@ kubectl describe pod api-7d9f | grep -E "Liveness|Readiness|Unhealthy"
 ```bash
 kubectl debug -it api-7d9f \
   --image=busybox:1.38 \
-  --target=api
+  --target=api --profile=restricted
 ```
 
 Comparte el namespace de procesos con `api`: ideal para imágenes *distroless* sin shell.
@@ -611,7 +611,7 @@ ImagePullBackOff, Pending,<br>OOMKilled y una PDB que bloquea el drain
 kubectl apply -f examples/contador/k8s/admin/broken/01-imagen.yaml
 ```
 
-<small>⏱ 75 min · `labs/lab-15-troubleshooting.md`</small>
+<small>⏱ 90 min · `labs/lab-15-troubleshooting.md`</small>
 
 ---
 

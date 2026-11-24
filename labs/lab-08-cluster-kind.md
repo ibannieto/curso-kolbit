@@ -130,7 +130,8 @@ kubectl get pods -l app=hola
 ```bash
 kubectl delete -f /tmp/hola.yaml
 kubectl config set-context --current --namespace=default
+kubectl delete namespace lab
 ```
 
-> **No borres el clúster**: lo usaremos en los labs 09 a 15. Si necesitas
+> **No borres el clúster**: lo usaremos en los labs 09 a 18. Si necesitas
 > recrearlo: `kind delete cluster --name curso`.

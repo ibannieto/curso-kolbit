@@ -81,6 +81,7 @@ pod/redis-7f5c9b6d8-lm2nb   1/1     Running   0          40s
 
 ```bash
 kubectl -n contador port-forward svc/api 8080:80 &
+sleep 1      # da tiempo a que el túnel esté listo
 curl -s localhost:8080/
 curl -s localhost:8080/
 curl -s localhost:8080/info
@@ -108,6 +109,7 @@ Las variables de entorno se leen **al arrancar**. Reinicia los Pods:
 kubectl -n contador rollout restart deployment/api
 kubectl -n contador rollout status deployment/api
 kill %1; kubectl -n contador port-forward svc/api 8080:80 &
+sleep 1
 curl -s localhost:8080/info
 ```
 
@@ -131,8 +133,9 @@ kubectl -n contador scale deployment redis --replicas=1
 
 1. Decodifica la contraseña de Redis: `kubectl -n contador get secret contador-secret -o jsonpath='{.data.REDIS_PASSWORD}' | base64 -d`.
    ¿Qué conclusión sacas sobre los Secrets?
-2. Crea un overlay en `/tmp/overlay-dev` que use la base, cambie `APP_COLOR` con
-   un `configMapGenerator` (`behavior: merge`) y ponga 1 réplica.
+2. Crea un overlay en `examples/contador/overlay-dev` que use la base
+   (`resources: [../k8s]`; Kustomize no admite rutas absolutas), cambie
+   `APP_COLOR` con un `configMapGenerator` (`behavior: merge`) y ponga 1 réplica.
 3. Intenta desplegar un Pod con `securityContext.runAsUser: 0` en el namespace
    `contador`. ¿Qué responde Pod Security Admission?
 

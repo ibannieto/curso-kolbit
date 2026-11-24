@@ -113,6 +113,12 @@ kubectl --context alumno@curso get secrets        # Forbidden
 kubectl --context alumno@curso get pods -n kube-system   # Forbidden
 ```
 
+Vuelve a la raíz del repositorio para los pasos siguientes:
+
+```bash
+cd -
+```
+
 ### 6. Dar permisos a un grupo en vez de a un usuario
 
 Asigna el ClusterRole predefinido `view` al **grupo** `alumnos` solo en `default`:
@@ -178,4 +184,5 @@ kubectl config delete-context ci@curso;     kubectl config delete-user ci-deploy
 kubectl delete csr alumno
 kubectl delete rolebinding alumnos-view -n default
 kubectl delete -f examples/contador/k8s/admin/networkpolicy.yaml
+rm -rf ~/k8s-alumno
 ```

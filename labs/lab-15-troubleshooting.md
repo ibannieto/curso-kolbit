@@ -9,7 +9,7 @@
 
 ## Duración
 
-75 minutos.
+90 minutos.
 
 ## Requisitos
 
@@ -137,6 +137,10 @@ kubectl logs deploy/roto-arranque -n contador --previous
 kubectl set env deployment/roto-arranque -n contador FAIL_ON_START-
 ```
 
+> Si `--previous` responde `unable to retrieve container logs`, el Pod está
+> esperando al siguiente reinicio: el contenedor que murió es todavía el
+> «actual» (y el anterior ya se ha borrado). Repite el comando sin `--previous`.
+
 El tiempo entre reinicios crece de forma exponencial (10 s, 20 s, 40 s… hasta 5 min).
 
 </details>
@@ -147,7 +151,8 @@ La imagen de `contador` no trae herramientas de red. Añade un contenedor de deb
 
 ```bash
 POD=$(kubectl get pod -n contador -l app.kubernetes.io/name=api -o name | head -1)
-kubectl debug -it -n contador "$POD" --image=busybox:1.38 --target=api -- sh
+kubectl debug -it -n contador "$POD" --image=busybox:1.38 --target=api \
+  --profile=restricted -- sh
 # Dentro:
 ps aux                       # ves el proceso python de "api" (namespace de PID compartido)
 wget -qO- localhost:8080/info
@@ -155,14 +160,21 @@ nslookup redis
 exit
 ```
 
+> Sin `--profile=restricted`, el perfil por defecto añade la capability
+> `SYS_PTRACE` y Pod Security `baseline` rechaza el contenedor efímero.
+
 ## Retos extra
 
 1. Rompe tú la readiness probe de `api` (ruta `/nope`) con `kubectl edit` y diagnostica el
-   síntoma: `Running`, pero `0/1` y sin endpoints en el Service.
+   síntoma: el Pod nuevo queda `Running`, pero `0/1`, el rollout no avanza y el
+   EndpointSlice lo marca con `ready: false` (`-o yaml`). Deshazlo con `rollout undo`.
 2. Usa `kubectl debug node/curso-worker -it --image=busybox:1.38` y busca los logs del
    kubelet o los contenedores en `/host/var/log/pods`.
 3. Instala `stern` o `k9s` y repite un caso usándolos.
 4. Por parejas: uno rompe un Deployment y el otro lo arregla.
+5. Quita la variable `REDIS_PORT` de `05-arranque.yaml`, aplícalo y arréglalo de
+   nuevo. ¿Por qué falla ahora con `invalid literal for int()`? (Pista: busca
+   *service links* y `enableServiceLinks`.)
 
 ## Limpieza
 

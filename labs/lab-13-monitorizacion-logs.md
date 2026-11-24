@@ -31,6 +31,7 @@ En otra terminal, genera tráfico:
 
 ```bash
 kubectl -n contador port-forward svc/api 8080:80 &
+sleep 1
 for i in $(seq 1 10); do curl -s localhost:8080/ >/dev/null; done
 ```
 
@@ -62,6 +63,9 @@ Salida esperada:
 ```text
 FATAL: FAIL_ON_START=lab13
 ```
+
+Si `--previous` responde `unable to retrieve container logs`, el contenedor que
+murió es todavía el «actual» (está esperando al siguiente reinicio).
 
 > Gracias a `maxUnavailable: 0`, los Pods antiguos siguen sirviendo tráfico.
 
@@ -132,6 +136,8 @@ kubeEtcd:
 kubeControllerManager:
   enabled: false
 kubeScheduler:
+  enabled: false
+kubeProxy:
   enabled: false
 ```
 

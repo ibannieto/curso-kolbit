@@ -45,6 +45,9 @@ spec:
                 secretKeyRef:
                   name: contador-secret
                   key: REDIS_PASSWORD
+            # El Service "redis" inyecta REDIS_PORT=tcp://IP:6379 (service links)
+            - name: REDIS_PORT
+              value: "6379"
           ports:
             - name: http
               containerPort: 8080

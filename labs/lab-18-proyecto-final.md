@@ -9,7 +9,7 @@
 
 ## Duración
 
-90 minutos.
+60 minutos.
 
 ## Requisitos
 
@@ -114,6 +114,19 @@ otro tag y actualiza:
 ```bash
 docker build -t curso-kolbit:dev2 .
 kind load docker-image curso-kolbit:dev2 --name curso
+```
+
+Con Podman, repite el paso 4 con el tag `dev2` y **otro** fichero: `podman save`
+no sobrescribe un `.tar` que ya existe.
+
+```bash
+podman build --format docker -t curso-kolbit:dev2 .
+podman tag localhost/curso-kolbit:dev2 docker.io/library/curso-kolbit:dev2
+podman save -o /tmp/curso-kolbit-dev2.tar docker.io/library/curso-kolbit:dev2
+kind load image-archive /tmp/curso-kolbit-dev2.tar --name curso
+```
+
+```bash
 kubectl -n curso-kolbit scale deploy/curso-kolbit --replicas=2
 kubectl -n curso-kolbit set image deploy/curso-kolbit slides=curso-kolbit:dev2
 kubectl -n curso-kolbit rollout status deploy/curso-kolbit
@@ -142,13 +155,16 @@ curso: desplegó con `kubectl apply` y Flux restauró la versión anterior.
 1. **HPA**: crea un `HorizontalPodAutoscaler` para `curso-kolbit` (CPU 70 %, entre 2 y 5
    réplicas). Necesita metrics-server (lab 12). ¿Tiene sentido un HPA para una web estática?
 2. **PDB + drain**: con 2 réplicas, haz `kubectl drain` del nodo donde está una de ellas y
-   comprueba que la presentación sigue respondiendo durante el drain.
+   comprueba que la presentación sigue respondiendo durante el drain. Pruébalo desde
+   dentro del clúster (un Pod con `wget` en bucle contra `http://curso-kolbit.curso-kolbit`):
+   el `port-forward` se ata a un único Pod y se corta si lo desalojan.
 3. **Gateway API**: revisa el componente `k8s/components/httproute`. ¿Qué haría falta en
    kind para que funcione? (Un controlador de Gateway, como Envoy Gateway o Cilium, y un `Gateway`.)
 4. **Registro privado**: si la imagen de GHCR es privada, crea un Secret
    `docker-registry` y referéncialo con `imagePullSecrets` desde un overlay nuevo.
-5. **Seguridad**: etiqueta el namespace con `pod-security.kubernetes.io/enforce=restricted`
-   y comprueba que el Deployment sigue funcionando.
+5. **Seguridad**: el namespace ya aplica `pod-security.kubernetes.io/enforce=restricted`
+   (`k8s/base/namespace.yaml`). Intenta un `kubectl run` de busybox en `curso-kolbit`, lee
+   el error y localiza en `deployment.yaml` los campos que hacen que la presentación sí cumpla.
 
 ## Limpieza
 

@@ -100,12 +100,13 @@ uno nuevo y, cuando está *Ready*, se elimina uno viejo.
 
 ### 5. Cambiar la estrategia
 
-Edita el YAML con `maxSurge: 2` y `maxUnavailable: 2`, vuelve a aplicarlo y
-actualiza a `nginx:1.30`:
+Edita el YAML con `maxSurge: 2` y `maxUnavailable: 2` y vuelve a aplicarlo. El
+fichero sigue diciendo `nginx:1.30` (el `set image` del paso anterior no está en
+el YAML), así que el propio `apply` actualiza de 1.31 a 1.30:
 
 ```bash
 kubectl apply -f web-deploy.yaml
-kubectl set image deployment/web nginx=nginx:1.30
+kubectl rollout status deployment/web
 ```
 
 Observa en la terminal 2 que ahora se reemplazan los Pods de **dos en dos**.
@@ -118,8 +119,10 @@ kubectl rollout status deployment/web --timeout=60s
 kubectl get pods -l app=web
 ```
 
-Salida esperada: Pods nuevos en `ErrImagePull` o `ImagePullBackOff`, y los
-antiguos **siguen sirviendo** (gracias a la readinessProbe y a `maxUnavailable`).
+Salida esperada: Pods nuevos en `ErrImagePull` o `ImagePullBackOff`, y dos de
+los antiguos **siguen sirviendo** (`kubectl get deploy web` muestra `READY 2/4`):
+los nuevos nunca pasan la readinessProbe y `maxUnavailable: 2` solo permite
+retirar dos de los viejos.
 
 ### 7. Rollback
 
@@ -128,8 +131,12 @@ kubectl rollout history deployment/web
 kubectl rollout undo deployment/web
 kubectl rollout status deployment/web
 kubectl rollout history deployment/web
-kubectl rollout undo deployment/web --to-revision=1
+kubectl rollout undo deployment/web --to-revision=2
 ```
+
+La revisión 1 ya no aparece en el historial: al volver a la plantilla de
+`nginx:1.30` se reutiliza su ReplicaSet y la revisión se renumera. La 2 es la de
+`nginx:1.31`.
 
 ## Retos extra
 
